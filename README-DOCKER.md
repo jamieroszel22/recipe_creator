@@ -102,10 +102,25 @@ For a more permanent solution, deploy to a cloud provider:
 
 - If Ollama fails to download the model, you can manually pull it:
   ```
-  docker exec -it recipe-creator-recipe-creator-1 ollama pull granite3.1-dense:8b
+  # First, find the container name
+  docker ps
+  
+  # Then pull the model (replace CONTAINER_NAME with your actual container name)
+  docker exec -it CONTAINER_NAME ollama pull granite3.1-dense:8b
   ```
 
-- If the application is slow, consider using a machine with more resources 
+- If the application is slow, consider using a machine with more resources
+
+## Resource Requirements
+
+For optimal performance, your machine should have:
+- At least 4GB of RAM
+- 2+ CPU cores
+- 10GB of free disk space (for the Docker image and Ollama models)
+
+## Security Note
+
+This deployment is intended for personal or internal use. If you plan to expose this application to the internet, consider adding authentication and HTTPS.
 
 # Create a README.md file with project information
 cat > README.md << 'EOF'
