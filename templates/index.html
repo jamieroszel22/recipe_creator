@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Creator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: none;
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: #198754;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+            position: relative;
+        }
+        .card-header::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to right, #198754, #20c997);
+            border-radius: 50%;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        .btn-primary {
+            background-color: #198754;
+            border-color: #198754;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #146c43;
+            border-color: #146c43;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .progress {
+            height: 25px;
+            border-radius: 8px;
+            background-color: #e9ecef;
+            margin: 1.5rem 0;
+        }
+        .progress-bar {
+            background-color: #198754;
+            border-radius: 8px;
+        }
+        #result {
+            white-space: pre-line;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .recipe-title {
+            color: #198754;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #198754;
+            padding-bottom: 0.5rem;
+        }
+        .recipe-section {
+            margin-bottom: 1.5rem;
+        }
+        .recipe-section-title {
+            color: #198754;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        .ingredients-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .ingredients-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        .ingredients-list li:before {
+            content: "•";
+            color: #198754;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-right: 0.5em;
+        }
+        .instructions-list {
+            list-style-type: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .instructions-list li {
+            padding: 10px 0;
+            margin-bottom: 10px;
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 40px;
+        }
+        .instructions-list li:before {
+            content: counter(step-counter);
+            background-color: #198754;
+            color: white;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+        .cooking-time {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .cooking-time i {
+            color: #198754;
+            margin-right: 5px;
+        }
+        .loading-message {
+            font-style: italic;
+            color: #6c757d;
+        }
+        .recipe-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .btn-outline-secondary {
+            color: #198754;
+            border-color: #198754;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #198754;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .app-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 0;
+            margin-right: 10px;
+            position: relative;
+        }
+        .nav-tabs .nav-link.active {
+            color: #198754;
+            background-color: transparent;
+            font-weight: 600;
+        }
+        .nav-tabs .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #198754;
+            border-radius: 3px 3px 0 0;
+        }
+        .nav-tabs .nav-link:hover {
+            color: #198754;
+            border: none;
+        }
+        .tab-content {
+            padding: 20px 0;
+        }
+        .save-recipe-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            border: 2px solid #198754;
+            color: #198754;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .save-recipe-btn:hover {
+            background-color: #198754;
+            color: white;
+            transform: scale(1.1);
+        }
+        .save-recipe-btn.saved {
+            background-color: #198754;
+            color: white;
+        }
+        .delete-recipe-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #fff;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .delete-recipe-btn:hover {
+            background-color: #dc3545;
+            color: white;
+            transform: scale(1.1);
+        }
+        .empty-favorites {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            color: #6c757d;
+        }
+        .empty-favorites i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #adb5bd;
+        }
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .recipe-source {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-style: italic;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .recipe-source i {
+            color: #198754;
+        }
+        .recipe-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+        .agent-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+            background-color: #198754;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="text-center mb-0"><i class="fas fa-utensils app-icon"></i>Recipe Creator</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead text-center">Enter ingredients you have on hand, and we'll find recipes you can make!</p>
+                
+                <form id="recipeForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="ingredients" class="form-label">Ingredients (separated by commas)</label>
+                        <textarea class="form-control" id="ingredients" rows="3" placeholder="e.g., chicken, broccoli, rice, garlic" required></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Generate Recipes</button>
+                    </div>
+                </form>
+                
+                <div id="progressContainer" class="mb-4" style="display: none;">
+                    <h5><i class="fas fa-spinner fa-spin me-2"></i>Generating recipes... 
+                        <span id="currentAgent" class="agent-badge">RecipeFinder</span>
+                    </h5>
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p id="progressText" class="mt-2 loading-message">Searching for recipes...</p>
+                </div>
+                
+                <div id="resultContainer" style="display: none;">
+                    <ul class="nav nav-tabs" id="recipeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab" aria-controls="current" aria-selected="true">
+                                <i class="fas fa-clipboard-list me-2"></i>Current Recipe
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites" type="button" role="tab" aria-controls="favorites" aria-selected="false">
+                                <i class="fas fa-heart me-2"></i>Favorites
+                                <span id="favoritesCount" class="badge-count" style="display: none;">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="recipeTabsContent">
+                        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+                            <div id="result" class="p-3 rounded"></div>
+                        </div>
+                        <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
+                            <div id="favoritesContainer">
+                                <div class="empty-favorites">
+                                    <i class="fas fa-heart-broken"></i>
+                                    <h4>No Favorite Recipes Yet</h4>
+                                    <p>Save recipes you like and they'll appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <button id="newSearchBtn" class="btn btn-outline-secondary"><i class="fas fa-redo me-2"></i>Start New Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const recipeForm = document.getElementById('recipeForm');
+            const ingredientsInput = document.getElementById('ingredients');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultDiv = document.getElementById('result');
+            const newSearchBtn = document.getElementById('newSearchBtn');
+            const favoritesContainer = document.getElementById('favoritesContainer');
+            const favoritesCount = document.getElementById('favoritesCount');
+            
+            let taskId = null;
+            let statusCheckInterval = null;
+            let elapsedTime = 0;
+            let currentRecipe = null;
+            
+            // Initialize favorites from localStorage
+            let favorites = JSON.parse(localStorage.getItem('recipeCreatorFavorites')) || [];
+            updateFavoritesCount();
+            renderFavorites();
+            
+            recipeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const ingredients = ingredientsInput.value.trim();
+                if (!ingredients) {
+                    alert('Please enter some ingredients');
+                    return;
+                }
+                
+                // Show progress container
+                recipeForm.style.display = 'none';
+                progressContainer.style.display = 'block';
+                resultContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Searching for recipes...';
+                
+                // Submit the request
+                fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ingredients=${encodeURIComponent(ingredients)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    taskId = data.task_id;
+                    elapsedTime = 0;
+                    
+                    // Start checking status
+                    statusCheckInterval = setInterval(checkStatus, 3000);
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                    recipeForm.style.display = 'block';
+                    progressContainer.style.display = 'none';
+                });
+            });
+            
+            function checkStatus() {
+                if (!taskId) return;
+                
+                fetch(`/status/${taskId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        // Update progress
+                        progressBar.style.width = `${data.progress}%`;
+                        elapsedTime += 3;
+                        
+                        // Update current agent
+                        if (data.current_agent) {
+                            document.getElementById('currentAgent').textContent = data.current_agent;
+                            
+                            // Update progress text based on agent
+                            if (data.current_agent === 'RecipeFinder') {
+                                progressText.textContent = "Searching for and adapting recipes...";
+                            } else if (data.current_agent === 'Compiler') {
+                                progressText.textContent = "Formatting and enhancing recipes...";
+                            }
+                        }
+                        
+                        // Update progress text for elapsed time
+                        if (elapsedTime >= 60) {
+                            const minutes = Math.floor(elapsedTime / 60);
+                            const agentText = progressText.textContent.split('...')[0];
+                            progressText.textContent = `${agentText}... (${minutes} minute${minutes > 1 ? 's' : ''} elapsed)`;
+                        }
+                        
+                        // Check if completed
+                        if (data.status === 'completed') {
+                            clearInterval(statusCheckInterval);
+                            currentRecipe = data.result;
+                            displayResult(data.result);
+                            
+                            // Clear the task from server memory
+                            fetch(`/clear/${taskId}`, { method: 'POST' });
+                        } else if (data.status === 'error') {
+                            clearInterval(statusCheckInterval);
+                            alert('Error: ' + data.result);
+                            recipeForm.style.display = 'block';
+                            progressContainer.style.display = 'none';
+                            
+                            // Clear the task from server memory
+                            fetch(`/clear/${taskId}`, { method: 'POST' });
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(statusCheckInterval);
+                        alert('Error checking status: ' + error.message);
+                        recipeForm.style.display = 'block';
+                        progressContainer.style.display = 'none';
+                    });
+            }
+            
+            function displayResult(result) {
+                // Format the result with enhanced styling
+                let formattedResult = formatRecipe(result, true);
+                
+                resultDiv.innerHTML = formattedResult;
+                progressContainer.style.display = 'none';
+                resultContainer.style.display = 'block';
+                
+                // Add event listener to save button
+                const saveBtn = document.querySelector('.save-recipe-btn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function() {
+                        saveRecipe(result);
+                    });
+                    
+                    // Check if this recipe is already saved
+                    const isAlreadySaved = favorites.some(recipe => recipe.content === result);
+                    if (isAlreadySaved) {
+                        saveBtn.classList.add('saved');
+                        saveBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                        saveBtn.title = 'Recipe saved to favorites';
+                    }
+                }
+            }
+            
+            function formatRecipe(recipeText, addSaveButton = false) {
+                // First apply basic formatting
+                let formatted = recipeText
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold text
+                    .replace(/\n\n/g, '<br><br>');                     // Paragraphs
+                
+                // Try to identify recipe sections
+                const recipeRegex = /^(.*?)(?:\n\nIngredients:|\n\n[Ii]ngredients)/s;
+                const ingredientsRegex = /(?:[Ii]ngredients:?)([\s\S]*?)(?:\n\n[Ii]nstructions:?|\n\n[Ss]teps:?|\n\n[Dd]irections:?)/;
+                const instructionsRegex = /(?:[Ii]nstructions:?|[Ss]teps:?|[Dd]irections:?)([\s\S]*?)(?:\n\n[Cc]ooking [Tt]ime:?|\n\n[Pp]rep [Tt]ime:?|\n\n[Tt]otal [Tt]ime:?|\n\n[Ss]ource:?|$)/;
+                const timeRegex = /(?:[Cc]ooking [Tt]ime:?|[Pp]rep [Tt]ime:?|[Tt]otal [Tt]ime:?)([\s\S]*?)(?:\n\n[Ss]ource:?|$)/;
+                const sourceRegex = /(?:[Ss]ource:?|[Ii]nspired by:?|[Aa]dapted from:?)([\s\S]*?)$/;
+                
+                // Extract recipe title
+                let titleMatch = recipeText.match(/^(.*?)(?:\n|$)/);
+                let title = titleMatch ? titleMatch[1].trim() : "Recipe";
+                
+                // Extract ingredients
+                let ingredientsMatch = recipeText.match(ingredientsRegex);
+                let ingredients = ingredientsMatch ? ingredientsMatch[1].trim() : "";
+                
+                // Extract instructions
+                let instructionsMatch = recipeText.match(instructionsRegex);
+                let instructions = instructionsMatch ? instructionsMatch[1].trim() : "";
+                
+                // Extract cooking time
+                let timeMatch = recipeText.match(timeRegex);
+                let cookingTime = timeMatch ? timeMatch[1].trim() : "";
+                
+                // Extract source information
+                let sourceMatch = recipeText.match(sourceRegex);
+                let source = sourceMatch ? sourceMatch[1].trim() : "";
+                
+                // Format ingredients as a list
+                let ingredientsList = "";
+                if (ingredients) {
+                    ingredientsList = "<ul class='ingredients-list'>";
+                    ingredients.split('\n').forEach(item => {
+                        if (item.trim()) {
+                            ingredientsList += `<li>${item.trim().replace(/^-\s*/, '')}</li>`;
+                        }
+                    });
+                    ingredientsList += "</ul>";
+                }
+                
+                // Format instructions as a numbered list
+                let instructionsList = "";
+                if (instructions) {
+                    instructionsList = "<ol class='instructions-list'>";
+                    instructions.split('\n').forEach(item => {
+                        if (item.trim()) {
+                            // Remove any existing numbers or bullets
+                            let cleanItem = item.trim().replace(/^[0-9]+\.\s*/, '').replace(/^-\s*/, '');
+                            instructionsList += `<li>${cleanItem}</li>`;
+                        }
+                    });
+                    instructionsList += "</ol>";
+                }
+                
+                // Format cooking time and source
+                let metaSection = "";
+                if (cookingTime || source) {
+                    metaSection = '<div class="recipe-meta">';
+                    if (cookingTime) {
+                        metaSection += `<div class="cooking-time"><i class="fas fa-clock"></i> ${cookingTime}</div>`;
+                    }
+                    if (source) {
+                        metaSection += `<div class="recipe-source"><i class="fas fa-book"></i> ${source}</div>`;
+                    }
+                    metaSection += '</div>';
+                }
+                
+                // Add save button if requested
+                let saveButton = "";
+                if (addSaveButton) {
+                    saveButton = `<button class="save-recipe-btn" title="Save to favorites"><i class="far fa-heart"></i></button>`;
+                }
+                
+                // If we successfully parsed the recipe structure, return the formatted version
+                if (title && (ingredients || instructions)) {
+                    return `
+                        <div class="recipe-card">
+                            ${saveButton}
+                            <h2 class="recipe-title">${title}</h2>
+                            
+                            ${ingredients ? `
+                            <div class="recipe-section">
+                                <h3 class="recipe-section-title"><i class="fas fa-carrot me-2"></i>Ingredients</h3>
+                                ${ingredientsList}
+                            </div>
+                            ` : ''}
+                            
+                            ${instructions ? `
+                            <div class="recipe-section">
+                                <h3 class="recipe-section-title"><i class="fas fa-list-ol me-2"></i>Instructions</h3>
+                                ${instructionsList}
+                            </div>
+                            ` : ''}
+                            
+                            ${metaSection}
+                        </div>
+                    `;
+                } else {
+                    // If we couldn't parse the structure, just apply basic formatting
+                    return `<div class="recipe-card">${saveButton}${formatted}</div>`;
+                }
+            }
+            
+            function saveRecipe(recipeText) {
+                const saveBtn = document.querySelector('.save-recipe-btn');
+                
+                // Check if recipe is already saved
+                const existingIndex = favorites.findIndex(recipe => recipe.content === recipeText);
+                
+                if (existingIndex !== -1) {
+                    // Recipe already exists, remove it
+                    favorites.splice(existingIndex, 1);
+                    saveBtn.classList.remove('saved');
+                    saveBtn.innerHTML = '<i class="far fa-heart"></i>';
+                    saveBtn.title = 'Save to favorites';
+                } else {
+                    // Add new recipe
+                    const titleMatch = recipeText.match(/^(.*?)(?:\n|$)/);
+                    const title = titleMatch ? titleMatch[1].trim() : "Recipe";
+                    
+                    favorites.push({
+                        id: Date.now(),
+                        title: title,
+                        content: recipeText,
+                        date: new Date().toISOString()
+                    });
+                    
+                    saveBtn.classList.add('saved');
+                    saveBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                    saveBtn.title = 'Recipe saved to favorites';
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('recipeCreatorFavorites', JSON.stringify(favorites));
+                
+                // Update favorites display
+                updateFavoritesCount();
+                renderFavorites();
+            }
+            
+            function deleteRecipe(id) {
+                // Remove recipe from favorites
+                favorites = favorites.filter(recipe => recipe.id !== id);
+                
+                // Save to localStorage
+                localStorage.setItem('recipeCreatorFavorites', JSON.stringify(favorites));
+                
+                // Update favorites display
+                updateFavoritesCount();
+                renderFavorites();
+                
+                // If current recipe is displayed and was deleted, update its save button
+                if (currentRecipe) {
+                    const saveBtn = document.querySelector('.save-recipe-btn');
+                    if (saveBtn && !favorites.some(recipe => recipe.content === currentRecipe)) {
+                        saveBtn.classList.remove('saved');
+                        saveBtn.innerHTML = '<i class="far fa-heart"></i>';
+                        saveBtn.title = 'Save to favorites';
+                    }
+                }
+            }
+            
+            function updateFavoritesCount() {
+                if (favorites.length > 0) {
+                    favoritesCount.textContent = favorites.length;
+                    favoritesCount.style.display = 'flex';
+                } else {
+                    favoritesCount.style.display = 'none';
+                }
+            }
+            
+            function renderFavorites() {
+                if (favorites.length === 0) {
+                    favoritesContainer.innerHTML = `
+                        <div class="empty-favorites">
+                            <i class="fas fa-heart-broken"></i>
+                            <h4>No Favorite Recipes Yet</h4>
+                            <p>Save recipes you like and they'll appear here</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                
+                // Sort favorites by date (newest first)
+                favorites.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                favorites.forEach(recipe => {
+                    const formattedRecipe = formatRecipe(recipe.content);
+                    html += `
+                        <div class="recipe-card" data-id="${recipe.id}">
+                            <button class="delete-recipe-btn" title="Remove from favorites" onclick="deleteRecipeById(${recipe.id})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            ${formattedRecipe.replace('<div class="recipe-card">', '').replace('</div>', '')}
+                        </div>
+                    `;
+                });
+                
+                favoritesContainer.innerHTML = html;
+            }
+            
+            // Make deleteRecipeById available globally
+            window.deleteRecipeById = function(id) {
+                deleteRecipe(id);
+            };
+            
+            newSearchBtn.addEventListener('click', function() {
+                ingredientsInput.value = '';
+                resultContainer.style.display = 'none';
+                recipeForm.style.display = 'block';
+                
+                // Reset current recipe
+                currentRecipe = null;
+                
+                // Switch to current tab
+                document.getElementById('current-tab').click();
+            });
+        });
+    </script>
+</body>
+</html>

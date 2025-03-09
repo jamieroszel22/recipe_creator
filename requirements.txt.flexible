@@ -1,0 +1,6 @@
+flask>=2.3.3
+beeai-framework==0.1.0
+# Let pip resolve the correct versions for these dependencies
+pydantic>=2.10
+asyncio>=3.4.3
+typing-extensions>=4.12.2 
